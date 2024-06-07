@@ -8,9 +8,7 @@
 public class Driver {
 
     public static void main(String[] args) {
-        System.out.println("This is the driver file.");
-
-
+        ArrayStack stack = new ArrayStack(1);
     }
 
 }
