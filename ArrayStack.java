@@ -7,14 +7,14 @@
 
 import java.util.EmptyStackException;
 
-public class ArrayStack {
+public class ArrayStack<E> {
     
-    private char[] innerStack;
+    private E[] innerStack;
     private int top;
 
     public ArrayStack(int capacity) {
         // User can specify the size
-        innerStack = new char[capacity  ];
+        innerStack = (E[]) new Object[capacity];
         top = -1;
     }
 
@@ -22,7 +22,7 @@ public class ArrayStack {
         return top + 1;
     }
 
-    public char top() throws EmptyStackException {
+    public E top() throws EmptyStackException {
         if (isEmpty()) {
             throw new EmptyStackException();
         } else {
@@ -30,7 +30,7 @@ public class ArrayStack {
         }
     }
     
-    public char pop() throws EmptyStackException {
+    public E pop() throws EmptyStackException {
         if (isEmpty()) {
             throw new EmptyStackException();
         } else {
@@ -39,12 +39,12 @@ public class ArrayStack {
         }
     }
 
-    public void push(char c) {
+    public void push(E element) {
         if (isFull()) {
             innerStack = expandStack(innerStack);
         }
         top++;
-        innerStack[top] = c;
+        innerStack[top] = element;
     }
 
     public boolean isEmpty() {
@@ -55,10 +55,12 @@ public class ArrayStack {
         return top == innerStack.length - 1;
     }
 
-    private char[] expandStack(char[] original) {
+    private E[] expandStack(E[] original) {
         // Returns a copy of the original array, with double the length
 
-        char[] newInnerStack = new char[original.length * 2];
+        E[] newInnerStack = null;
+        innerStack = (E[]) new Object[original.length * 2];
+
         for (int i = 0; i < original.length; i++) {
             newInnerStack[i] = original[i];
         }
