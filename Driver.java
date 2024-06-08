@@ -41,17 +41,17 @@ public class Driver {
         // Incldes a $ operator that indicates the lowest possible precedence
 
         if (operator.equals("$")) {
-            return 0;
+            return 5;
         } else if (operator.equals("<")  || operator.equals(">") || operator.equals("<=") || operator.equals(">=")) {
-            return 1;
-        } else if (operator.equals("+") || operator.equals("-")) {
-            return 2;
-        } else if (operator.equals("*") || operator.equals("/")) {
-            return 3;
-        } else if (operator.equals("^")) {
             return 4;
+        } else if (operator.equals("+") || operator.equals("-")) {
+            return 3;
+        } else if (operator.equals("*") || operator.equals("/")) {
+            return 2;
+        } else if (operator.equals("^")) {
+            return 1;
         } else {
-            return -1;
+            return 10;
         }
     }
 
