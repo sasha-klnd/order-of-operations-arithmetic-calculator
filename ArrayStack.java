@@ -12,6 +12,7 @@ public class ArrayStack<E> {
     private E[] innerStack;
     private int top;
 
+    @SuppressWarnings("unchecked")
     public ArrayStack(int capacity) {
         // User can specify the size
         innerStack = (E[]) new Object[capacity];
@@ -55,11 +56,13 @@ public class ArrayStack<E> {
         return top == innerStack.length - 1;
     }
 
+    @SuppressWarnings("unchecked")
     private E[] expandStack(E[] original) {
         // Returns a copy of the original array, with double the length
 
         E[] newInnerStack = null;
-        innerStack = (E[]) new Object[original.length * 2];
+        
+        newInnerStack = (E[]) new Object[original.length * 2];
 
         for (int i = 0; i < original.length; i++) {
             newInnerStack[i] = original[i];
