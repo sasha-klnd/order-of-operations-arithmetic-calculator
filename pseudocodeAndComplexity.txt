@@ -1,0 +1,60 @@
+/*
+ * COMP 352 AA - Data Structures and Algorithms
+ * Professor Hakim Mellah
+ * Written By: Sasha Klein-Charland (40281076)
+ * Programming Assignment 2
+ */
+
+ALGORITHM OrderOfOperationsCalculator(inputFile)
+    INPUT   a text file containing a correctly formatted arithmetic expression
+    OUPUT   a text file 'output.txt', that contains the result of the expression in the input file 
+
+    while inputFile.hasNext() do
+        token <- next character in the line
+        if token = newline then
+            break
+        if token is numeric then
+            rpnQueue.enqueue(token)
+        else if token is an operator then
+            if operatorStack.isEmpty() then
+                operatorStack.push(token)
+            else
+                while (precedence(operatorStack.top()) < precedence(token))
+                    rpnQueue.enqueue(operatorStack.pop())
+                operatorStack.push(token)
+        else if token is a left parenthesis then
+            operatorStack.push(token)
+        else if token is a right parenthesis then
+            while operatorStack.top() != '(' do
+                rpnQueue.enqueue(operatorStack.pop())
+            operatorStack.pop()
+
+    while ! operatorStack.isEmpty() do
+        rpnQueue.enqueue(operatorStack.pop())
+    
+    while ! rpnQueue.isEmpty() do
+        if rpnQueue.front() is numeric then 
+            resultStack.push(rpnQueue.dequeue())
+        else
+            resultStack.push(rpnQueue.dequeue())
+
+            operator <- resultStack.pop()
+            operand1 <- resultStack.pop()
+            operand2 <- resultStack.pop()
+            result <- operand1 *operator* operand2
+
+            resultStack.push(result)
+
+    outputFile.print(resultStack.pop())
+
+--------------------
+
+Space Complexity:
+The linked list queue always has (n + 2) nodes for n queue elements, including the header and trailer nodes, and is therefore O(n).
+The ArrayStack structure starts out with a size of 8 and doubles in size whenever this is exceeded. So on average the space taken is O(2^(log n)).
+So the program overall has a space complexity of O(2^(log n)).
+
+Time Complexity:
+The methods isNumeric, isOperator, precedence, and performOperation are all O(1).
+The methods shuntingSort and evaluateExpression depend on the length of the expression, so are O(n).
+Overall then the program is O(n) for an input file of n tokens.

@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.util.regex.*;
 
 public class Driver {
 
@@ -53,6 +54,14 @@ public class Driver {
             printer.println(result);
         }
 
+        /* // Sort the expression into rpnQueue
+        shuntingSort(reader, operatorStack, rpnQueue);
+    
+        // Evaluate the expression
+        String result = evaluateExpression(rpnQueue, resultStack);
+
+        System.out.println(result); */
+
         reader.close();
         printer.close();
     }
@@ -83,12 +92,10 @@ public class Driver {
     
     public static int precedence(String operator) {
         // Returns an integer representing the "precedence" of an operator, based on the order of operations
-        // A higher value indicates higher precedence
-        // Incldes a $ operator that indicates the lowest possible precedence
+        // A lower value indicates higher precedence
 
-        if (operator.equals("==")  || operator.equals("!=")) {
-            return 5;
-        } else if (operator.equals("<")  || operator.equals(">") || operator.equals("<=") || operator.equals(">=")) {
+        if (operator.equals("<")  || operator.equals(">") || operator.equals("<=") || 
+            operator.equals(">=") || operator.equals("==") || operator.equals("!=")) {
             return 4;
         } else if (operator.equals("+") || operator.equals("-")) {
             return 3;
@@ -104,15 +111,14 @@ public class Driver {
     public static void shuntingSort(Scanner reader, ArrayStack<String> operatorStack, LLQueue<String> rpnQueue) {
         // This method will read an expression from the input file, written in infix notation, and 
         // push the equivalent expression in postfix notation, or Reverse Polish Notation, onto the result queue.
-
+        
+        String line  = reader.nextLine();
+        String[] tokens = splitExpression(line);
         String token;
-        while (reader.hasNext()) {
-            token = Character.toString(reader.next().charAt(0));
 
-            if (token.equals("\n")) {
-                // Reader reaching a new line is also considered a stopping condition
-                break;
-            }
+        for (int i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+
             if (isNumeric(token)) {
                 // Numeric values are instantly placed in the queue
                 rpnQueue.enqueue(token);
@@ -121,9 +127,13 @@ public class Driver {
                     // The operator gets pushed the to stack if it is empty
                     operatorStack.push(token);
                 } else {
-                    while (precedence((String) operatorStack.top()) < precedence(token)) {
+                    while (precedence((String) operatorStack.top()) <= precedence(token)) {
                         // Pop all higher-precedence operators into the queue first to ensure order of operations is satisfied
                         rpnQueue.enqueue(operatorStack.pop());
+
+                        // Check again if the stack is empty after each pop() to prevent crashes
+                        if (operatorStack.isEmpty())
+                            break;
                     }
                     // Once the new token is not of lower precedence, place it in the stack
                     operatorStack.push(token);
@@ -145,15 +155,12 @@ public class Driver {
         while (!operatorStack.isEmpty()) {
             rpnQueue.enqueue(operatorStack.pop());
         }
-
         // resultsQueue should now have the expression in Reverse Polish format
         return;
     }
 
     public static String evaluateExpression(LLQueue<String> rpnQueue, ArrayStack<String> resultStack) {
         // Evaluate an entire expression from one line of the text file
-
-        String result = "";
 
         while (!rpnQueue.isEmpty()) {
             if (isNumeric((String) rpnQueue.front())) {
@@ -183,44 +190,60 @@ public class Driver {
         // For comparison operators, the operation is performed and the result is a boolean value
         // In either case the result is converted to a string before being returned
 
+        double result;
+
         if (operator.equals("+")) {
-            double result = operand1 + operand2;
-            return Double.toString(Math.floor(result * 100000) / 100000);
+            result = operand1 + operand2;
         } else if (operator.equals("-")) {
-            double result = operand1 - operand2;
-            return Double.toString(Math.floor(result * 100000) / 100000);
+            result = operand1 - operand2;
         } else if (operator.equals("*")) {
-            double result = operand1 * operand2;
-            return Double.toString(Math.floor(result * 100000) / 100000);
+            result = operand1 * operand2;
         } else if (operator.equals("/")) {
-            double result = operand1 / operand2;
-            return Double.toString(Math.floor(result * 100000) / 100000);
+            result = operand1 / operand2;
         } else if (operator.equals("^")) {
-            double result = Math.pow(operand1, operand2);
-            return Double.toString(Math.floor(result * 100000) / 100000);
+            result = Math.pow(operand1, operand2);
         } 
         
         else if (operator.equals("<")) {
-            boolean result = operand1 < operand2;
-            return Boolean.toString(result);
+            result = (operand1 < operand2 ? 1 : 0);
         } else if (operator.equals(">")) {
-            boolean result = operand1 > operand2;
-            return Boolean.toString(result);
+            result = (operand1 > operand2 ? 1 : 0);
         } else if (operator.equals("<=")) {
-            boolean result = operand1 <= operand2;
-            return Boolean.toString(result);
+            result = (operand1 <= operand2 ? 1 : 0);
         } else if (operator.equals(">=")) {
-            boolean result = operand1 >= operand2;
-            return Boolean.toString(result);
+            result = (operand1 >= operand2 ? 1 : 0);
         } else if (operator.equals("==")) {
-            boolean result = operand1 == operand2;
-            return Boolean.toString(result);
+            result = (operand1 == operand2 ? 1 : 0);
         } else if (operator.equals("!=")) {
-            boolean result = operand1 != operand2;
-            return Boolean.toString(result);
+            result = (operand1 != operand2 ? 1 : 0);
         } else {
             return "";
         }
+
+        return Double.toString(Math.floor(result * 100000) / 100000);
+    }
+
+    public static String[] splitExpression(String line) {
+        
+        String regex = "\\d+|<=|>=|==|!=|[+\\-*/^()<>]";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(line);
+        
+        int tokenCount = 0;
+        while (matcher.find()) {
+            tokenCount++;
+        }
+        
+        String[] tokens = new String[tokenCount];
+        
+        matcher.reset();
+        
+        int i = 0;
+        while (matcher.find()) {
+            tokens[i++] = matcher.group();
+        }
+
+        return tokens;
     }
 
 }
